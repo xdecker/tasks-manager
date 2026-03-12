@@ -4,13 +4,13 @@ export class SignupDto {
   @IsString()
   name: string;
 
-  @IsEmail({}, { message: 'Debe ingresar un email que sea válido' })
+  @IsEmail({})
   email: string;
 
-  @MinLength(4, { message: 'La contraseña debe tener almenos 4 caracteres' })
+  @MinLength(4)
   password: string;
 
-  @MinLength(4, { message: 'La contraseña debe tener almenos 4 caracteres' })
-  @IsNotEmpty({ message: 'Por favor, confirme su contraseña' })
+  @MinLength(4)
+  @IsNotEmpty({ message: 'You have to confirm your password' })
   confirmPassword: string;
 }
