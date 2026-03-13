@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TaskQuery } from "../interfaces/task.interface";
-import { getTasks } from "../api/task.api";
+import { Task, TaskQuery } from "../interfaces/task.interface";
+import { createTask, getTasks, updateTask } from "../api/task.api";
 
 export function useTask() {
   const [loading, setLoading] = useState(false);
@@ -24,5 +24,31 @@ export function useTask() {
     }
   };
 
-  return { getAllTasks, loading, error };
+  const createNewTask = async (data: Task) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await createTask(data);
+      return res;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTaskSelected = async (id: string, data: Task) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await updateTask(id, data);
+      return res;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { getAllTasks, createNewTask, updateTaskSelected, loading, error };
 }

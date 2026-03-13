@@ -2,11 +2,13 @@
 import {
   SkeletonCard,
   TaskCard,
+  TaskFormModal,
   TasksToolbar,
 } from "@/features/tasks/components";
 
 import {
   ItemTask,
+  Task,
   TaskQuery,
 } from "@/features/tasks/interfaces/task.interface";
 import { useEffect, useState } from "react";
@@ -14,8 +16,10 @@ import { useTask } from "../hooks/useTasks";
 import { EmptyDataMessage } from "@/components/shared";
 import { LayoutList } from "lucide-react";
 import clsx from "clsx";
+import { useCustomDialog } from "@/providers/custom-dialog.provider";
 export const TaskGrid = () => {
-  const { getAllTasks, loading } = useTask();
+  const { createNewTask, updateTaskSelected, getAllTasks, loading } = useTask();
+  const { showDialog } = useCustomDialog();
   const [tasks, setTasks] = useState<ItemTask[]>([]);
   const [meta, setMeta] = useState({
     total: 0,
@@ -28,6 +32,9 @@ export const TaskGrid = () => {
     limit: 10,
     sort: "asc",
   });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<ItemTask | undefined>();
 
   const fetchTasks = async () => {
     const res = await getAllTasks(query);
@@ -54,9 +61,40 @@ export const TaskGrid = () => {
     }
   };
 
+  const onCreateTask = () => {
+    setEditingTask(undefined);
+    setModalOpen(true);
+  };
+
+  const handleSaveTask = async (data: Task) => {
+    try {
+      if (editingTask) {
+        await updateTaskSelected(editingTask.id, data);
+      } else {
+        await createNewTask(data);
+      }
+      showDialog(
+        "success",
+        `Task ${editingTask ? "updated" : "created"} successfully`
+      );
+    } catch (err: any) {
+      const errorMessage = Array.isArray(err.message)
+        ? err.message.join(", ")
+        : err.message;
+      showDialog("error", errorMessage);
+    }
+
+    fetchTasks();
+  };
+
   return (
     <div className="space-y-6">
-      <TasksToolbar query={query} setQuery={setQuery} />
+      <TasksToolbar
+        query={query}
+        total={meta.total}
+        setQuery={setQuery}
+        onClickNewTask={onCreateTask}
+      />
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -67,7 +105,14 @@ export const TaskGrid = () => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              onEdit={() => {
+                setEditingTask(task);
+                setModalOpen(true);
+              }}
+            />
           ))}
         </div>
       )}
@@ -113,6 +158,13 @@ export const TaskGrid = () => {
           </button>
         </div>
       )}
+
+      <TaskFormModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        task={editingTask}
+        onSubmit={handleSaveTask}
+      />
     </div>
   );
 };

@@ -14,10 +14,17 @@ import { TaskQuery, TaskStatus } from "../interfaces/task.interface";
 
 interface Props {
   query: TaskQuery;
+  total: number;
   setQuery: React.Dispatch<React.SetStateAction<TaskQuery>>;
+  onClickNewTask: () => void;
 }
 
-export function TasksToolbar({ query, setQuery }: Props) {
+export function TasksToolbar({
+  total,
+  query,
+  setQuery,
+  onClickNewTask,
+}: Props) {
   const changeStatus = (status?: TaskStatus) => {
     setQuery((prev) => ({
       ...prev,
@@ -36,7 +43,10 @@ export function TasksToolbar({ query, setQuery }: Props) {
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <PrincipalHeader title="My Tasks" />
+      <PrincipalHeader
+        title="My Tasks"
+        subTitle={total != 0 ? `Total tasks:(${total.toString()})` : undefined}
+      />
 
       <div className="flex items-center gap-3">
         {/* STATUS FILTER */}
@@ -73,7 +83,7 @@ export function TasksToolbar({ query, setQuery }: Props) {
           </SelectContent>
         </Select>
 
-        <Button>New Task</Button>
+        <Button onClick={onClickNewTask}>New Task</Button>
       </div>
     </div>
   );

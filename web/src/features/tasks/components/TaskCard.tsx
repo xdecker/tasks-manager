@@ -6,6 +6,7 @@ import { Task } from "../interfaces/task.interface";
 
 interface props {
   task: Task;
+  onEdit: () => void;
 }
 
 const statusStyles = {
@@ -20,7 +21,7 @@ const statusIcons = {
   DONE: CheckCircle2,
 };
 
-export const TaskCard = ({ task }: props) => {
+export const TaskCard = ({ task, onEdit }: props) => {
   const StatusIcon = statusIcons[task.status];
 
   return (
@@ -44,7 +45,7 @@ export const TaskCard = ({ task }: props) => {
         </p>
 
         <div className="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition">
-          <Button size="icon" variant="ghost">
+          <Button onClick={onEdit} size="icon" variant="ghost">
             <Pencil className="h-4 w-4" />
           </Button>
 

@@ -11,6 +11,6 @@ export class UpdateTaskDto {
   description?: string;
 
   @IsOptional()
-  @IsEnum(TaskStatus, {message:"El status no es válido"})
+  @IsEnum(TaskStatus)
   status?: TaskStatus;
 }
