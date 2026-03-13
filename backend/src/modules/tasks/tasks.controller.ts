@@ -15,6 +15,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { TaskStatus } from '@prisma/client';
 import { UpdateTaskDto } from './dtos/update-task.dto';
+import { TasksQueryDto } from './dtos/tasks-query.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
@@ -29,9 +30,9 @@ export class TasksController {
   @Get()
   async findAll(
     @CurrentUser('id') userId: string,
-    @Query('status') status?: TaskStatus,
+    @Query() query: TasksQueryDto,
   ) {
-    return this.tasksService.findAll(userId, status);
+    return this.tasksService.findAll(userId, query);
   }
 
   @Patch(':id')

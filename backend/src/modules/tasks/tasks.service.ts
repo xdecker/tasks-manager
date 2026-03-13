@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { TaskStatus } from '@prisma/client';
 import { UpdateTaskDto } from './dtos/update-task.dto';
+import { TasksQueryDto } from './dtos/tasks-query.dto';
 
 @Injectable()
 export class TasksService {
@@ -17,17 +18,44 @@ export class TasksService {
     });
   }
 
-  async findAll(userId: string, status?: TaskStatus) {
-    return this.prisma.task.findMany({
-      where: {
-        userId,
-        active: true,
-        ...(status && { status }),
+  async findAll(userId: string, options: TasksQueryDto) {
+    const page = Number(options.page) || 1;
+    const limit = Number(options.limit) || 10;
+    const sort = options.sort || 'asc';
+
+    const skip = (page - 1) * limit;
+
+    const where = {
+      userId,
+      active: true,
+      ...(options.status && { status: options.status }),
+    };
+
+    const [tasks, total] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: sort,
+        },
+      }),
+
+      this.prisma.task.count({
+        where,
+      }),
+    ]);
+
+    const lastPage = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      data: tasks,
+      meta: {
+        total,
+        page,
+        lastPage,
       },
-      orderBy: {
-        createdAt: 'asc', //fifo
-      },
-    });
+    };
   }
 
   async update(id: string, userId: string, dto: UpdateTaskDto) {
@@ -45,7 +73,7 @@ export class TasksService {
 
   async delete(id: string, userId: string) {
     const task = await this.prisma.task.findFirst({
-      where: { id, userId, active:true },
+      where: { id, userId, active: true },
     });
 
     if (!task) throw new NotFoundException('Task not found');
