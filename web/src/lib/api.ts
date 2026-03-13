@@ -8,9 +8,9 @@ export interface ApiErrorResponse {
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-interface ApiClientOptions {
+interface ApiClientOptions<P = unknown> {
   data?: unknown;
-  params?: Record<string, string | number | boolean>;
+  params?: P;
   token?: string;
   isFile?: boolean;
   isBlob?: boolean;
@@ -22,22 +22,26 @@ function getAuthToken(): string | null {
   return localStorage.getItem("token");
 }
 
-export async function apiClient<T>(
+export async function apiClient<T, P = unknown>(
   endpoint: string,
   method: HttpMethod,
-  options?: ApiClientOptions
+  options?: ApiClientOptions<P>
 ): Promise<T> {
   let url = `${API_URL}${endpoint}`;
 
   // query params
   if (options?.params) {
-    const query = new URLSearchParams(
-      Object.entries(options.params).reduce(
-        (acc, [k, v]) => ({ ...acc, [k]: String(v) }),
-        {}
-      )
-    );
+    const queryParams: Record<string, string> = {};
 
+    for (const [key, value] of Object.entries(
+      options.params as Record<string, unknown>
+    )) {
+      if (value !== undefined && value !== null) {
+        queryParams[key] = String(value);
+      }
+    }
+
+    const query = new URLSearchParams(queryParams);
     url += `?${query.toString()}`;
   }
 
