@@ -1,5 +1,5 @@
+"use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, CheckCircle2, Clock, ListTodo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Task } from "../interfaces/task.interface";
@@ -7,6 +7,7 @@ import { Task } from "../interfaces/task.interface";
 interface props {
   task: Task;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
 const statusStyles = {
@@ -21,7 +22,7 @@ const statusIcons = {
   DONE: CheckCircle2,
 };
 
-export const TaskCard = ({ task, onEdit }: props) => {
+export const TaskCard = ({ task, onEdit, onDelete }: props) => {
   const StatusIcon = statusIcons[task.status];
 
   return (
@@ -49,8 +50,8 @@ export const TaskCard = ({ task, onEdit }: props) => {
             <Pencil className="h-4 w-4" />
           </Button>
 
-          <Button size="icon" variant="ghost">
-            <Trash2 className="h-4 w-4" />
+          <Button onClick={onDelete} size="icon" variant="ghost">
+            <Trash2 className="h-4 w-4 text-red-800" />
           </Button>
         </div>
       </CardContent>

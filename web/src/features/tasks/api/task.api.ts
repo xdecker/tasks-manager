@@ -14,3 +14,6 @@ export const createTask = (data: Task) =>
 
 export const updateTask = (id: string, data: Task) =>
   apiClient<ItemTask>(`/tasks/${id}`, "PATCH", { data });
+
+export const deleteTask = (id: string) =>
+  apiClient<ItemTask>(`/tasks/${id}`, "DELETE");

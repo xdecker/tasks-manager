@@ -13,14 +13,21 @@ import {
 } from "@/features/tasks/interfaces/task.interface";
 import { useEffect, useState } from "react";
 import { useTask } from "../hooks/useTasks";
-import { EmptyDataMessage } from "@/components/shared";
-import { LayoutList } from "lucide-react";
+import { ConfirmDialog, EmptyDataMessage } from "@/components/shared";
+import { ClipboardX, LayoutList } from "lucide-react";
 import clsx from "clsx";
 import { useCustomDialog } from "@/providers/custom-dialog.provider";
 export const TaskGrid = () => {
-  const { createNewTask, updateTaskSelected, getAllTasks, loading } = useTask();
+  const {
+    createNewTask,
+    updateTaskSelected,
+    deleteTaskSelected,
+    getAllTasks,
+    loading,
+  } = useTask();
   const { showDialog } = useCustomDialog();
   const [tasks, setTasks] = useState<ItemTask[]>([]);
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [meta, setMeta] = useState({
     total: 0,
     page: 1,
@@ -34,7 +41,7 @@ export const TaskGrid = () => {
   });
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<ItemTask | undefined>();
+  const [selectedTask, setSelectedTask] = useState<ItemTask | undefined>();
 
   const fetchTasks = async () => {
     const res = await getAllTasks(query);
@@ -62,20 +69,37 @@ export const TaskGrid = () => {
   };
 
   const onCreateTask = () => {
-    setEditingTask(undefined);
+    setSelectedTask(undefined);
     setModalOpen(true);
+  };
+
+  const handleDeleteTask = async () => {
+    try {
+      if (selectedTask) {
+        await deleteTaskSelected(selectedTask.id);
+
+        showDialog("success", `Task has been deleted successfully`);
+      }
+    } catch (err: any) {
+      const errorMessage = Array.isArray(err.message)
+        ? err.message.join(", ")
+        : err.message;
+      showDialog("error", errorMessage);
+    }
+
+    fetchTasks();
   };
 
   const handleSaveTask = async (data: Task) => {
     try {
-      if (editingTask) {
-        await updateTaskSelected(editingTask.id, data);
+      if (selectedTask) {
+        await updateTaskSelected(selectedTask.id, data);
       } else {
         await createNewTask(data);
       }
       showDialog(
         "success",
-        `Task ${editingTask ? "updated" : "created"} successfully`
+        `Task ${selectedTask ? "updated" : "created"} successfully`
       );
     } catch (err: any) {
       const errorMessage = Array.isArray(err.message)
@@ -109,8 +133,12 @@ export const TaskGrid = () => {
               key={task.id}
               task={task}
               onEdit={() => {
-                setEditingTask(task);
+                setSelectedTask(task);
                 setModalOpen(true);
+              }}
+              onDelete={() => {
+                setSelectedTask(task);
+                setOpenConfirm(true);
               }}
             />
           ))}
@@ -162,8 +190,19 @@ export const TaskGrid = () => {
       <TaskFormModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        task={editingTask}
+        task={selectedTask}
         onSubmit={handleSaveTask}
+      />
+
+      <ConfirmDialog
+        open={openConfirm}
+        onClose={() => {
+          setOpenConfirm(false);
+        }}
+        onConfirm={() => handleDeleteTask()}
+        title={"Delete Task"}
+        description={`¿Are you sure to delete the task: ${selectedTask?.title}`}
+        icon={<ClipboardX className="text-slate-500 w-10 h-10" />}
       />
     </div>
   );

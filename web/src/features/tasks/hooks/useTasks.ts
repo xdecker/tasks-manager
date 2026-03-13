@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Task, TaskQuery } from "../interfaces/task.interface";
-import { createTask, getTasks, updateTask } from "../api/task.api";
+import { createTask, deleteTask, getTasks, updateTask } from "../api/task.api";
 
 export function useTask() {
   const [loading, setLoading] = useState(false);
@@ -50,5 +50,25 @@ export function useTask() {
     }
   };
 
-  return { getAllTasks, createNewTask, updateTaskSelected, loading, error };
+  const deleteTaskSelected = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await deleteTask(id);
+      return res;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    getAllTasks,
+    createNewTask,
+    updateTaskSelected,
+    deleteTaskSelected,
+    loading,
+    error,
+  };
 }
