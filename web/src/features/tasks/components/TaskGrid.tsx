@@ -75,11 +75,11 @@ export const TaskGrid = () => {
 
   const handleDeleteTask = async () => {
     try {
-      if (selectedTask) {
+      if (!selectedTask) return;
         await deleteTaskSelected(selectedTask.id);
 
         showDialog("success", `Task has been deleted successfully`);
-      }
+      
     } catch (err: any) {
       const errorMessage = Array.isArray(err.message)
         ? err.message.join(", ")
