@@ -18,7 +18,7 @@ export const PrincipalHeader = ({
       )}
 
       <div className="flex flex-col leading-tight">
-        <h1 className="text-2xl font-bold text-blue-900">{title}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
 
         {subTitle && (
           <p className="text-sm text-muted-foreground">{subTitle}</p>
