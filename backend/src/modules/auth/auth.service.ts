@@ -32,13 +32,13 @@ export class AuthService {
 
   async signup(dto: SignupDto) {
     if (dto.password !== dto.confirmPassword) {
-      throw new BadRequestException('Las contraseñas no coinciden');
+      throw new BadRequestException('passwords must be same');
     }
 
     const exists = await this.prisma.user.findUnique({
       where: { email: dto.email, active: true },
     });
-    if (exists) throw new BadRequestException('Email ya registrado');
+    if (exists) throw new BadRequestException('Email already registered');
 
     const hash = await bcrypt.hash(dto.password, 10);
 

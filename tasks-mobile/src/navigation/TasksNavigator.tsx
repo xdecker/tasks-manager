@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { TaskListScreen } from "@/features/tasks/screens";
+import { TasksListScreen } from "@/features/tasks/screens";
 
 export type TasksStackParamList = {
   Tasks: undefined;
@@ -13,7 +13,7 @@ export function TasksNavigator() {
     <Stack.Navigator>
       <Stack.Screen
         name="Tasks"
-        component={TaskListScreen}
+        component={TasksListScreen}
         options={{
           title: "My Tasks",
         }}
