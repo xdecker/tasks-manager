@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { getTasks } from "../services/task.service";
-import { TaskQuery } from "../types/task.type";
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+} from "../services/task.service";
+import { Task, TaskQuery } from "../types/task.type";
 
 export function useTasks() {
-  //const setToken = useAuthStore((state) => state.setToken);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,8 +25,53 @@ export function useTasks() {
     }
   };
 
+  const createNewTask = async (data: Task) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await createTask(data);
+      return result;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTaskSelected = async (id: string, data: Task) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await updateTask(id, data);
+      return result;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteTaskSelected = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await deleteTask(id);
+      return result;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     getAllTasks,
+    createNewTask,
+    updateTaskSelected,
+    deleteTaskSelected,
     loading,
     error,
   };

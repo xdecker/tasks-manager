@@ -1,7 +1,7 @@
 export interface Task {
-  title: string;
+  title?: string;
   description?: string;
-  status: TaskStatus;
+  status?: TaskStatus;
 }
 export interface ItemTask extends Task {
   id: string;
