@@ -1,10 +1,14 @@
 import 'dotenv/config';
-import { PrismaService } from '../src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { TaskStatus } from '@prisma/client';
+import { PrismaClient, TaskStatus } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 async function main() {
-  const prisma = new PrismaService();
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  });
+
+  const prisma = new PrismaClient({ adapter });
 
   await prisma.$connect();
 
