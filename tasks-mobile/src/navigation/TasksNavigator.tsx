@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TasksListScreen } from "@/features/tasks/screens";
+import { HeaderOptionsMenu } from "./HeaderOptionsMenu";
 
 export type TasksStackParamList = {
   Tasks: undefined;
@@ -16,8 +17,10 @@ export function TasksNavigator() {
         component={TasksListScreen}
         options={{
           title: "My Tasks",
+          headerRight: () => <HeaderOptionsMenu />,
         }}
       />
     </Stack.Navigator>
   );
 }
+
