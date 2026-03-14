@@ -28,5 +28,16 @@ services:
     depends_on:
       - db
 
+  web:
+    build: ./web
+    container_name: tasks_web
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:3000
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
