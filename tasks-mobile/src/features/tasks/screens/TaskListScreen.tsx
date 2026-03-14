@@ -12,7 +12,7 @@ import { TasksHeader } from "../components/TasksHeader";
 import { useTasks } from "../hooks/useTasks";
 import { ItemTask, TaskStatus } from "../types/task.type";
 import Toast from "react-native-toast-message";
-import { TaskFormModal, TasksToolbar } from "../components";
+import { EmptyTasks, TaskFormModal, TasksToolbar } from "../components";
 import { TaskFormData } from "../schemas/task.schema";
 
 export function TasksListScreen() {
@@ -222,6 +222,11 @@ export function TasksListScreen() {
         data={tasks}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !loading ? (
+            <EmptyTasks hasFilters={!!statusFilter || sortOrder !== "asc"} />
+          ) : null
+        }
         contentContainerStyle={styles.itemsContainer}
         renderItem={renderItem}
         onEndReached={loadMore}

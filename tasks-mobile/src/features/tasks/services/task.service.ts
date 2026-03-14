@@ -18,7 +18,6 @@ export async function createTask(data: Task) {
 
 export async function updateTask(id: string, data: Task) {
   const result = await updateTaskRequest(id, data);
-  console.log("result en updateTask: ", result);
   return result;
 }
 
