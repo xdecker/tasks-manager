@@ -12,7 +12,7 @@ import { TasksHeader } from "../components/TasksHeader";
 import { useTasks } from "../hooks/useTasks";
 import { ItemTask, TaskStatus } from "../types/task.type";
 import Toast from "react-native-toast-message";
-import { TaskFormModal } from "../components";
+import { TaskFormModal, TasksToolbar } from "../components";
 import { TaskFormData } from "../schemas/task.schema";
 
 export function TasksListScreen() {
@@ -24,7 +24,8 @@ export function TasksListScreen() {
     updateTaskSelected,
     deleteTaskSelected,
   } = useTasks();
-
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>();
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [tasks, setTasks] = useState<any[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState(1);
@@ -36,16 +37,21 @@ export function TasksListScreen() {
 
   const fetchTasks = useCallback(
     async (pageToLoad = page, replace = false) => {
-      if (loading || pageToLoad > lastPage) return;
+      if (loading) return;
 
       const res = await getAllTasks({
         page: pageToLoad,
         limit: 10,
-        sort: "asc",
+        sort: sortOrder,
+        status: statusFilter,
       });
 
       if (res) {
         setTasks((prev) => {
+          if (replace) {
+            return res.data;
+          }
+
           const existingIds = new Set(prev.map((t) => t.id));
 
           const newTasks = res.data.filter((t: any) => !existingIds.has(t.id));
@@ -56,12 +62,18 @@ export function TasksListScreen() {
         setTotal(res.meta.total);
       }
     },
-    [page, loading]
+    [page, loading, sortOrder, statusFilter]
   );
 
   useEffect(() => {
     fetchTasks();
   }, [page]);
+
+  useEffect(() => {
+    setTasks([]);
+    setPage(1);
+    fetchTasks(1, true);
+  }, [statusFilter, sortOrder]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -144,10 +156,12 @@ export function TasksListScreen() {
   };
 
   const sortTasks = (list: ItemTask[]) =>
-    [...list].sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    [...list].sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+
+      return sortOrder === "asc" ? aTime - bTime : bTime - aTime;
+    });
 
   const renderItem = useCallback(
     ({ item }: any) => (
@@ -193,6 +207,15 @@ export function TasksListScreen() {
           setSelectedTask(undefined);
           setModalVisible(true);
         }}
+      />
+
+      <TasksToolbar
+        status={statusFilter}
+        sort={sortOrder}
+        onStatusChange={(s) => setStatusFilter(s)}
+        onSortChange={() =>
+          setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+        }
       />
 
       <FlatList
