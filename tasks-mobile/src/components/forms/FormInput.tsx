@@ -32,6 +32,7 @@ export function FormInput({ control, name, placeholder, icon, secure }: Props) {
             <TextInput
               style={styles.input}
               placeholder={placeholder}
+              placeholderTextColor="#9CA3AF"
               value={value}
               onChangeText={onChange}
               secureTextEntry={secure && !showPassword}
