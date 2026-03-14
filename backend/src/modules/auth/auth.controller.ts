@@ -31,9 +31,4 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@CurrentUser() user: any) {
-    return user;
-  }
 }
